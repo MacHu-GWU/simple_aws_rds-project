@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from pytest import raises, approx
 
 
 def test():
-    import simple_aws_rds
-    pass
+    from simple_aws_rds import api
+
+    _ = api.RDSDBInstanceStatusEnum
+    _ = api.RDSDBInstance
+    _ = api.RDSDBInstanceIterProxy
 
 
 if __name__ == "__main__":
