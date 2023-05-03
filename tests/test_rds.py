@@ -75,6 +75,11 @@ class TestRds:
         assert db_inst.is_stopped() is False
         assert db_inst.is_available() is True
 
+        db_inst_list = RDSDBInstance.from_tag_key_value(
+            self.bsm, key="Env", value="sandbox"
+        ).all()
+        assert len(db_inst_list) == 0
+
     def test(self):
         self._test()
 
