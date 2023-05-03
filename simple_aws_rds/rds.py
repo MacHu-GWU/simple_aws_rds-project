@@ -120,16 +120,17 @@ class RDSDBInstance:
     ) -> "RDSDBInstanceIterProxy":
         def run():
             paginator = bsm.rds_client.get_paginator("describe_db_instances")
-            response_iterator = paginator.paginate(
-                **resolve_kwargs(
-                    DBInstanceIdentifier=db_instance_identifier,
-                    Filters=filters,
-                    PaginationConfig={
-                        "MaxItems": 9999,
-                        "PageSize": 100,
-                    },
-                )
+            kwargs = resolve_kwargs(
+                DBInstanceIdentifier=db_instance_identifier,
+                Filters=filters,
+                PaginationConfig={
+                    "MaxItems": 9999,
+                    "PageSize": 100,
+                },
             )
+            if db_instance_identifier is not NOTHING:
+                del kwargs["PaginationConfig"]
+            response_iterator = paginator.paginate(**kwargs)
             for response in response_iterator:
                 yield from cls._yield_dict_from_describe_db_instances_response(response)
 
