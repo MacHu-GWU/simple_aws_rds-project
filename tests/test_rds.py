@@ -46,37 +46,37 @@ class TestRds:
             self.inst_id_2,
         ]
         for inst_id in inst_id_list:
-            db_inst = RDSDBInstance.from_id(self.bsm, inst_id)
+            db_inst = RDSDBInstance.from_id(self.bsm.rds_client, inst_id)
             assert db_inst.is_available() is True
             assert db_inst.is_stopped() is False
             assert db_inst.is_ready_to_start() is False
             assert db_inst.is_ready_to_stop() is True
             assert db_inst.id == inst_id
 
-        db_inst_list = RDSDBInstance.query(self.bsm).all()
+        db_inst_list = RDSDBInstance.query(self.bsm.rds_client).all()
         assert len(db_inst_list) == 2
 
         db_inst_list = RDSDBInstance.from_tag_key_value(
-            self.bsm, key="Name", value="my-db"
+            self.bsm.rds_client, key="Name", value="my-db"
         ).all()
         assert len(db_inst_list) == 1
         db_inst = db_inst_list[0]
         assert db_inst.id == self.inst_id_2
         assert db_inst.tags["Name"] == "my-db"
 
-        db_inst = RDSDBInstance.from_id(self.bsm, self.inst_id_1)
-        db_inst.stop_db_instance(self.bsm)
-        db_inst = RDSDBInstance.from_id(self.bsm, self.inst_id_1)
+        db_inst = RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
+        db_inst.stop_db_instance(self.bsm.rds_client)
+        db_inst = RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
         assert db_inst.is_available() is False
         assert db_inst.is_stopped() is True
 
-        db_inst.start_db_instance(self.bsm)
-        db_inst = RDSDBInstance.from_id(self.bsm, self.inst_id_1)
+        db_inst.start_db_instance(self.bsm.rds_client)
+        db_inst = RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
         assert db_inst.is_stopped() is False
         assert db_inst.is_available() is True
 
         db_inst_list = RDSDBInstance.from_tag_key_value(
-            self.bsm, key="Env", value="sandbox"
+            self.bsm.rds_client, key="Env", value="sandbox"
         ).all()
         assert len(db_inst_list) == 0
 
