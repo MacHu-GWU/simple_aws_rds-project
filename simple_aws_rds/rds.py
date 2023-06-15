@@ -383,6 +383,41 @@ class RDSDBInstance:
         """ """
         return rds_client.stop_db_instance(DBInstanceIdentifier=self.id)
 
+    def wait_for_status(
+        self,
+        rds_client,
+        stop_status: T.Union[RDSDBInstanceStatusEnum, T.List[RDSDBInstanceStatusEnum]],
+        delays: T.Union[int, float] = 10,
+        timeout: T.Union[int, float] = 300,
+        error_status: T.Optional[T.Union[RDSDBInstanceStatusEnum, T.List[RDSDBInstanceStatusEnum]]] = None,
+        indent: int = 0,
+        verbose: bool = True,
+    ) -> "RDSDBInstance": # pragma: no cover
+        if isinstance(stop_status, RDSDBInstanceStatusEnum):
+            stop_status_set = {stop_status.value}
+        else:
+            stop_status_set = {status.value for status in RDSDBInstanceStatusEnum}
+        if error_status is None:
+            error_status_set = set()
+        elif isinstance(error_status, RDSDBInstanceStatusEnum):
+            error_status_set = {error_status.value}
+        else:
+            error_status_set = {status.value for status in RDSDBInstanceStatusEnum}
+
+        for attempt, elapse in Waiter(
+            delays=delays,
+            timeout=timeout,
+            indent=indent,
+            verbose=verbose,
+        ):
+            db_inst = self.from_id(rds_client, self.id)
+            if db_inst.status in stop_status_set:
+                return db_inst
+            elif db_inst.status in error_status_set:
+                raise ValueError(f"stop because status reaches {db_inst.status!r}")
+            else:
+                pass
+
     # --------------------------------------------------------------------------
     # more constructor methods
     # --------------------------------------------------------------------------
