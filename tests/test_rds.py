@@ -80,7 +80,7 @@ class TestRds:
         ).all()
         assert len(db_inst_list) == 0
 
-    def _test_waiter(self):
+    def _test_wait_for_status(self):
         db_inst = RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
         assert db_inst.is_available() is True
 
@@ -94,7 +94,7 @@ class TestRds:
 
     def test(self):
         self._test()
-        self._test_waiter()
+        self._test_wait_for_status()
 
 
 if __name__ == "__main__":

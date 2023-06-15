@@ -130,6 +130,7 @@ class RDSDBInstance:
     subnet_group_name: T.Optional[str] = dataclasses.field(default=None)
     subnet_group_description: T.Optional[str] = dataclasses.field(default=None)
     subnet_group_arn: T.Optional[str] = dataclasses.field(default=None)
+    subnet_group_status: T.Optional[str] = dataclasses.field(default=None)
     security_groups: T.List[T.Dict[str, str]] = dataclasses.field(default_factory=list)
     availability_zone: T.Optional[str] = dataclasses.field(default=None)
     tags: T.Dict[str, str] = dataclasses.field(default_factory=dict)
@@ -209,6 +210,7 @@ class RDSDBInstance:
             subnet_group_name=dct.get("DBSubnetGroup", {}).get("DBSubnetGroupName"),
             subnet_group_description=dct.get("DBSubnetGroup", {}).get("DBSubnetGroupDescription"),
             subnet_group_arn=dct.get("DBSubnetGroup", {}).get("DBSubnetGroupArn"),
+            subnet_group_status=dct.get("DBSubnetGroup", {}).get("SubnetGroupStatus"),
             security_groups=dct.get("DBSecurityGroups", []),
             availability_zone=dct.get("AvailabilityZone"),
             tags={d["Key"]: d["Value"] for d in dct.get("TagList", [])},

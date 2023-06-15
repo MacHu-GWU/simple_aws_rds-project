@@ -17,6 +17,18 @@ Backlog (TODO)
 **Miscellaneous**
 
 
+0.2.1 (2023-06-15)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- add ``RDSDBInstnace.wait_for_status`` method
+
+**Minor Improvements**
+
+- add a lot more attributes to ``RDSDBInstnace``
+- add a lot more status enum to ``RDSDBInstanceStatusEnum``
+
+
 0.1.2 (2023-05-03)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Bugfixes**
