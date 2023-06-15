@@ -4,6 +4,7 @@
 omit =
     simple_aws_rds/docs/*
     simple_aws_rds/tests/*
+    simple_aws_rds/vendor/*
     simple_aws_rds/_version.py
 
 [report]
