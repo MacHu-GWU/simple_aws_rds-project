@@ -489,6 +489,21 @@ class RDSDBInstance:
         indent: int = 0,
         verbose: bool = True,
     ) -> "RDSDBInstance":  # pragma: no cover
+        """
+        wait until the DB instance reaches the specified status defined in
+        ``stop_status``. If reaches any of ``error_status ``, raise error.
+
+        :param rds_client:
+        :param stop_status: status to stop waiting
+        :param delays: delay between each check
+        :param timeout: timeout in seconds
+        :param error_status: status to raise error
+        :param indent: indent level for logging
+        :param verbose: whether to print log
+
+        :return: the :class:`RDSDBInstance` representing the latest status
+            of DB instance.
+        """
         if isinstance(stop_status, RDSDBInstanceStatusEnum):
             stop_status_set = {stop_status.value}
         else:
@@ -522,6 +537,10 @@ class RDSDBInstance:
         indent: int = 0,
         verbose: bool = True,
     ) -> "RDSDBInstance":  # pragma: no cover
+        """
+        Similar to :meth:`RDSDBInstance.wait_for_status`, but wait for
+        DB instance to reach "available" status.
+        """
         return self.wait_for_status(
             rds_client=rds_client,
             stop_status=RDSDBInstanceStatusEnum.available,
@@ -542,6 +561,10 @@ class RDSDBInstance:
         indent: int = 0,
         verbose: bool = True,
     ) -> "RDSDBInstance":  # pragma: no cover
+        """
+        Similar to :meth:`RDSDBInstance.wait_for_status`, but wait for
+        DB instance to reach "stopped" status.
+        """
         return self.wait_for_status(
             rds_client=rds_client,
             stop_status=RDSDBInstanceStatusEnum.stopped,
