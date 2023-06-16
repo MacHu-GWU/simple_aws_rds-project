@@ -13,6 +13,7 @@ from iterproxy import IterProxy
 from func_args import resolve_kwargs, NOTHING
 
 from .vendor.waiter import Waiter
+from .exc import StatusError
 
 
 class RDSDBInstanceStatusEnum(str, enum.Enum):
@@ -24,6 +25,7 @@ class RDSDBInstanceStatusEnum(str, enum.Enum):
 
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/accessing-monitoring.html#Overview.DBInstance.Status
     """
+
     available = "available"
     backing_up = "backing-up"
     configuring_enhanced_monitoring = "configuring-enhanced-monitoring"
@@ -35,7 +37,9 @@ class RDSDBInstanceStatusEnum(str, enum.Enum):
     deleting = "deleting"
     failed = "failed"
     inaccessible_encryption_credentials = "inaccessible-encryption-credentials"
-    inaccessible_encryption_credentials_recoverable = "inaccessible-encryption-credentials-recoverable"
+    inaccessible_encryption_credentials_recoverable = (
+        "inaccessible-encryption-credentials-recoverable"
+    )
     incompatible_network = "incompatible-network"
     incompatible_option_group = "incompatible-option-group"
     incompatible_parameters = "incompatible-parameters"
@@ -54,6 +58,76 @@ class RDSDBInstanceStatusEnum(str, enum.Enum):
     storage_full = "storage-full"
     storage_optimization = "storage-optimization"
     upgrading = "upgrading"
+
+
+T_STATUS_ENUM_SET = T.Set[RDSDBInstanceStatusEnum]
+
+
+class RDSDBInstanceStatusGroupEnum:
+    """
+    Group RDS DB instance status enum by semantic.
+
+    :param ended: The status that the instance can be considered as "stopped", "won't change".
+    :param in_transition: The status that the instance can be considered as "changing".
+    :param impossible_to_become_available: as the name
+    :param impossible_to_become_stopped: as the name
+    """
+
+    ended: T_STATUS_ENUM_SET = {
+        RDSDBInstanceStatusEnum.available,
+        RDSDBInstanceStatusEnum.failed,
+        RDSDBInstanceStatusEnum.stopped,
+        RDSDBInstanceStatusEnum.inaccessible_encryption_credentials,
+        RDSDBInstanceStatusEnum.inaccessible_encryption_credentials_recoverable,
+        RDSDBInstanceStatusEnum.incompatible_network,
+        RDSDBInstanceStatusEnum.incompatible_option_group,
+        RDSDBInstanceStatusEnum.incompatible_parameters,
+        RDSDBInstanceStatusEnum.incompatible_restore,
+        RDSDBInstanceStatusEnum.insufficient_capacity,
+        RDSDBInstanceStatusEnum.restore_error,
+    }
+
+    in_transition: T_STATUS_ENUM_SET = {
+        RDSDBInstanceStatusEnum.backing_up,
+        RDSDBInstanceStatusEnum.configuring_enhanced_monitoring,
+        RDSDBInstanceStatusEnum.configuring_iam_database_auth,
+        RDSDBInstanceStatusEnum.configuring_log_exports,
+        RDSDBInstanceStatusEnum.converting_to_vpc,
+        RDSDBInstanceStatusEnum.creating,
+        RDSDBInstanceStatusEnum.deleting,
+        RDSDBInstanceStatusEnum.maintenance,
+        RDSDBInstanceStatusEnum.modifying,
+        RDSDBInstanceStatusEnum.moving_to_vpc,
+        RDSDBInstanceStatusEnum.rebooting,
+        RDSDBInstanceStatusEnum.resetting_master_credentials,
+        RDSDBInstanceStatusEnum.renaming,
+        RDSDBInstanceStatusEnum.starting,
+        RDSDBInstanceStatusEnum.stopping,
+        RDSDBInstanceStatusEnum.storage_optimization,
+        RDSDBInstanceStatusEnum.upgrading,
+    }
+
+    impossible_to_become_available: T_STATUS_ENUM_SET = (
+        {
+            RDSDBInstanceStatusEnum.deleting,
+            RDSDBInstanceStatusEnum.stopping,
+        }
+        .union(ended)
+        .difference(
+            {
+                RDSDBInstanceStatusEnum.available,
+            }
+        )
+    )
+
+    impossible_to_become_stopped: T_STATUS_ENUM_SET = in_transition.union(
+        ended
+    ).difference(
+        {
+            RDSDBInstanceStatusEnum.stopping,
+            RDSDBInstanceStatusEnum.stopped,
+        }
+    )
 
 
 @dataclasses.dataclass
@@ -103,28 +177,40 @@ class RDSDBInstance:
     promotion_tier: T.Optional[int] = dataclasses.field(default=None)
     db_instance_arn: T.Optional[str] = dataclasses.field(default=None)
     timezone: T.Optional[str] = dataclasses.field(default=None)
-    iam_database_authentication_enabled: T.Optional[bool] = dataclasses.field(default=None)
+    iam_database_authentication_enabled: T.Optional[bool] = dataclasses.field(
+        default=None
+    )
     performance_insights_enabled: T.Optional[bool] = dataclasses.field(default=None)
     performance_insights_kms_key_id: T.Optional[str] = dataclasses.field(default=None)
-    performance_insights_retention_period: T.Optional[int] = dataclasses.field(default=None)
+    performance_insights_retention_period: T.Optional[int] = dataclasses.field(
+        default=None
+    )
     deletion_protection: T.Optional[bool] = dataclasses.field(default=None)
     max_allocated_storage: T.Optional[int] = dataclasses.field(default=None)
     customer_owned_ip_enabled: T.Optional[bool] = dataclasses.field(default=None)
     aws_backup_recovery_point_arn: T.Optional[str] = dataclasses.field(default=None)
     activity_stream_status: T.Optional[str] = dataclasses.field(default=None)
     activity_stream_kms_key_id: T.Optional[str] = dataclasses.field(default=None)
-    activity_stream_kinesis_stream_name: T.Optional[str] = dataclasses.field(default=None)
+    activity_stream_kinesis_stream_name: T.Optional[str] = dataclasses.field(
+        default=None
+    )
     activity_stream_mode: T.Optional[str] = dataclasses.field(default=None)
-    activity_stream_engine_native_audit_fields_included: T.Optional[bool] = dataclasses.field(default=None)
+    activity_stream_engine_native_audit_fields_included: T.Optional[
+        bool
+    ] = dataclasses.field(default=None)
     automation_mode: T.Optional[str] = dataclasses.field(default=None)
-    resume_full_automation_mode_time: T.Optional[datetime] = dataclasses.field(default=None)
+    resume_full_automation_mode_time: T.Optional[datetime] = dataclasses.field(
+        default=None
+    )
     custom_iam_instance_profile: T.Optional[str] = dataclasses.field(default=None)
     backup_target: T.Optional[str] = dataclasses.field(default=None)
     network_type: T.Optional[str] = dataclasses.field(default=None)
     activity_stream_policy_status: T.Optional[str] = dataclasses.field(default=None)
     storage_throughput: T.Optional[int] = dataclasses.field(default=None)
     db_system_id: T.Optional[str] = dataclasses.field(default=None)
-    read_replica_source_db_cluster_identifier: T.Optional[str] = dataclasses.field(default=None)
+    read_replica_source_db_cluster_identifier: T.Optional[str] = dataclasses.field(
+        default=None
+    )
     vpc_id: T.Optional[str] = dataclasses.field(default=None)
     subnet_ids: T.List[str] = dataclasses.field(default_factory=list)
     subnet_group_name: T.Optional[str] = dataclasses.field(default=None)
@@ -180,19 +266,27 @@ class RDSDBInstance:
             promotion_tier=dct.get("PromotionTier"),
             db_instance_arn=dct.get("DBInstanceArn"),
             timezone=dct.get("Timezone"),
-            iam_database_authentication_enabled=dct.get("IAMDatabaseAuthenticationEnabled"),
+            iam_database_authentication_enabled=dct.get(
+                "IAMDatabaseAuthenticationEnabled"
+            ),
             performance_insights_enabled=dct.get("PerformanceInsightsEnabled"),
             performance_insights_kms_key_id=dct.get("PerformanceInsightsKMSKeyId"),
-            performance_insights_retention_period=dct.get("PerformanceInsightsRetentionPeriod"),
+            performance_insights_retention_period=dct.get(
+                "PerformanceInsightsRetentionPeriod"
+            ),
             deletion_protection=dct.get("DeletionProtection"),
             max_allocated_storage=dct.get("MaxAllocatedStorage"),
             customer_owned_ip_enabled=dct.get("CustomerOwnedIpEnabled"),
             aws_backup_recovery_point_arn=dct.get("AwsBackupRecoveryPointArn"),
             activity_stream_status=dct.get("ActivityStreamStatus"),
             activity_stream_kms_key_id=dct.get("ActivityStreamKmsKeyId"),
-            activity_stream_kinesis_stream_name=dct.get("ActivityStreamKinesisStreamName"),
+            activity_stream_kinesis_stream_name=dct.get(
+                "ActivityStreamKinesisStreamName"
+            ),
             activity_stream_mode=dct.get("ActivityStreamMode"),
-            activity_stream_engine_native_audit_fields_included=dct.get("ActivityStreamEngineNativeAuditFieldsIncluded"),
+            activity_stream_engine_native_audit_fields_included=dct.get(
+                "ActivityStreamEngineNativeAuditFieldsIncluded"
+            ),
             automation_mode=dct.get("AutomationMode"),
             resume_full_automation_mode_time=dct.get("ResumeFullAutomationModeTime"),
             custom_iam_instance_profile=dct.get("CustomIamInstanceProfile"),
@@ -201,14 +295,18 @@ class RDSDBInstance:
             activity_stream_policy_status=dct.get("ActivityStreamPolicyStatus"),
             storage_throughput=dct.get("StorageThroughput"),
             db_system_id=dct.get("DBSystemId"),
-            read_replica_source_db_cluster_identifier=dct.get("ReadReplicaSourceDBClusterIdentifier"),
+            read_replica_source_db_cluster_identifier=dct.get(
+                "ReadReplicaSourceDBClusterIdentifier"
+            ),
             vpc_id=dct.get("DBSubnetGroup", {}).get("VpcId"),
             subnet_ids=[
                 kv["SubnetIdentifier"]
                 for kv in dct.get("DBSubnetGroup", {}).get("Subnets", [])
             ],
             subnet_group_name=dct.get("DBSubnetGroup", {}).get("DBSubnetGroupName"),
-            subnet_group_description=dct.get("DBSubnetGroup", {}).get("DBSubnetGroupDescription"),
+            subnet_group_description=dct.get("DBSubnetGroup", {}).get(
+                "DBSubnetGroupDescription"
+            ),
             subnet_group_arn=dct.get("DBSubnetGroup", {}).get("DBSubnetGroupArn"),
             subnet_group_status=dct.get("DBSubnetGroup", {}).get("SubnetGroupStatus"),
             security_groups=dct.get("DBSecurityGroups", []),
@@ -219,153 +317,135 @@ class RDSDBInstance:
 
     # status checking methods human intuitive status check
     def is_available(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.available.value
 
     def is_backing_up(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.backing_up.value
 
     def is_configuring_enhanced_monitoring(self) -> bool:  # pragma: no cover
-        """
-        """
-        return self.status == RDSDBInstanceStatusEnum.configuring_enhanced_monitoring.value
+        """ """
+        return (
+            self.status == RDSDBInstanceStatusEnum.configuring_enhanced_monitoring.value
+        )
 
     def is_configuring_iam_database_auth(self) -> bool:  # pragma: no cover
-        """
-        """
-        return self.status == RDSDBInstanceStatusEnum.configuring_iam_database_auth.value
+        """ """
+        return (
+            self.status == RDSDBInstanceStatusEnum.configuring_iam_database_auth.value
+        )
 
     def is_configuring_log_exports(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.configuring_log_exports.value
 
     def is_converting_to_vpc(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.converting_to_vpc.value
 
     def is_creating(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.creating.value
 
     def is_delete_precheck(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.delete_precheck.value
 
     def is_deleting(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.deleting.value
 
     def is_failed(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.failed.value
 
     def is_inaccessible_encryption_credentials(self) -> bool:  # pragma: no cover
-        """
-        """
-        return self.status == RDSDBInstanceStatusEnum.inaccessible_encryption_credentials.value
+        """ """
+        return (
+            self.status
+            == RDSDBInstanceStatusEnum.inaccessible_encryption_credentials.value
+        )
 
-    def is_inaccessible_encryption_credentials_recoverable(self) -> bool:  # pragma: no cover
-        """
-        """
-        return self.status == RDSDBInstanceStatusEnum.inaccessible_encryption_credentials_recoverable.value
+    def is_inaccessible_encryption_credentials_recoverable(
+        self,
+    ) -> bool:  # pragma: no cover
+        """ """
+        return (
+            self.status
+            == RDSDBInstanceStatusEnum.inaccessible_encryption_credentials_recoverable.value
+        )
 
     def is_incompatible_network(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.incompatible_network.value
 
     def is_incompatible_option_group(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.incompatible_option_group.value
 
     def is_incompatible_parameters(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.incompatible_parameters.value
 
     def is_incompatible_restore(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.incompatible_restore.value
 
     def is_insufficient_capacity(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.insufficient_capacity.value
 
     def is_maintenance(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.maintenance.value
 
     def is_modifying(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.modifying.value
 
     def is_moving_to_vpc(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.moving_to_vpc.value
 
     def is_rebooting(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.rebooting.value
 
     def is_resetting_master_credentials(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.resetting_master_credentials.value
 
     def is_renaming(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.renaming.value
 
     def is_restore_error(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.restore_error.value
 
     def is_starting(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.starting.value
 
     def is_stopped(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.stopped.value
 
     def is_stopping(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.stopping.value
 
     def is_storage_full(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.storage_full.value
 
     def is_storage_optimization(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.storage_optimization.value
 
     def is_upgrading(self) -> bool:  # pragma: no cover
-        """
-        """
+        """ """
         return self.status == RDSDBInstanceStatusEnum.upgrading.value
 
     # more human intuitive status check
@@ -376,6 +456,18 @@ class RDSDBInstance:
     def is_ready_to_stop(self) -> bool:
         """ """
         return self.is_available()
+
+    def is_end(self) -> bool:
+        """ """
+        return self.status in {
+            status.value for status in RDSDBInstanceStatusGroupEnum.ended
+        }
+
+    def is_in_transition(self) -> bool:
+        """ """
+        return self.status in {
+            status.value for status in RDSDBInstanceStatusGroupEnum.in_transition
+        }
 
     def start_db_instance(self, rds_client) -> dict:
         """ """
@@ -391,10 +483,12 @@ class RDSDBInstance:
         stop_status: T.Union[RDSDBInstanceStatusEnum, T.List[RDSDBInstanceStatusEnum]],
         delays: T.Union[int, float] = 10,
         timeout: T.Union[int, float] = 300,
-        error_status: T.Optional[T.Union[RDSDBInstanceStatusEnum, T.List[RDSDBInstanceStatusEnum]]] = None,
+        error_status: T.Optional[
+            T.Union[RDSDBInstanceStatusEnum, T.List[RDSDBInstanceStatusEnum]]
+        ] = None,
         indent: int = 0,
         verbose: bool = True,
-    ) -> "RDSDBInstance": # pragma: no cover
+    ) -> "RDSDBInstance":  # pragma: no cover
         if isinstance(stop_status, RDSDBInstanceStatusEnum):
             stop_status_set = {stop_status.value}
         else:
@@ -416,9 +510,49 @@ class RDSDBInstance:
             if db_inst.status in stop_status_set:
                 return db_inst
             elif db_inst.status in error_status_set:
-                raise ValueError(f"stop because status reaches {db_inst.status!r}")
+                raise StatusError(f"stop because status reaches {db_inst.status!r}")
             else:
                 pass
+
+    def wait_for_available(
+        self,
+        rds_client,
+        delays: T.Union[int, float] = 10,
+        timeout: T.Union[int, float] = 300,
+        indent: int = 0,
+        verbose: bool = True,
+    ) -> "RDSDBInstance":  # pragma: no cover
+        return self.wait_for_status(
+            rds_client=rds_client,
+            stop_status=RDSDBInstanceStatusEnum.available,
+            delays=delays,
+            timeout=timeout,
+            error_status=list(
+                RDSDBInstanceStatusGroupEnum.impossible_to_become_available
+            ),
+            indent=indent,
+            verbose=verbose,
+        )
+
+    def wait_for_stopped(
+        self,
+        rds_client,
+        delays: T.Union[int, float] = 10,
+        timeout: T.Union[int, float] = 300,
+        indent: int = 0,
+        verbose: bool = True,
+    ) -> "RDSDBInstance":  # pragma: no cover
+        return self.wait_for_status(
+            rds_client=rds_client,
+            stop_status=RDSDBInstanceStatusEnum.stopped,
+            delays=delays,
+            timeout=timeout,
+            error_status=list(
+                RDSDBInstanceStatusGroupEnum.impossible_to_become_stopped
+            ),
+            indent=indent,
+            verbose=verbose,
+        )
 
     # --------------------------------------------------------------------------
     # more constructor methods
@@ -446,6 +580,7 @@ class RDSDBInstance:
         Multiple filters join with logic "AND", multiple values in a filter
         join with logic "OR".
         """
+
         def run():
             paginator = rds_client.get_paginator("describe_db_instances")
             kwargs = resolve_kwargs(
@@ -493,6 +628,7 @@ class RDSDBInstance:
         :param key: tag key
         :param value: tag value
         """
+
         def run():
             for db_inst in cls.query(rds_client):
                 if db_inst.tags.get(key, "THIS_IS_IMPOSSIBLE_TO_MATCH") == value:

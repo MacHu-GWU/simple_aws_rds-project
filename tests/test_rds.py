@@ -5,7 +5,18 @@ import pytest
 import moto
 from boto_session_manager import BotoSesManager
 
-from simple_aws_rds.rds import RDSDBInstanceStatusEnum, RDSDBInstance
+from simple_aws_rds.rds import (
+    RDSDBInstanceStatusEnum,
+    RDSDBInstanceStatusGroupEnum,
+    RDSDBInstance,
+    StatusError,
+)
+
+
+class TestRDSDBInstanceStatusGroupEnum:
+    def test(self):
+        _ = RDSDBInstanceStatusGroupEnum.impossible_to_become_available
+        _ = RDSDBInstanceStatusGroupEnum.impossible_to_become_stopped
 
 
 class TestRds:
@@ -83,6 +94,11 @@ class TestRds:
     def _test_wait_for_status(self):
         db_inst = RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
         assert db_inst.is_available() is True
+        with pytest.raises(StatusError):
+            db_inst.wait_for_stopped(
+                rds_client=self.bsm.rds_client,
+                verbose=False,
+            )
 
         db_inst.stop_db_instance(self.bsm.rds_client)
         new_db_inst = db_inst.wait_for_status(
@@ -91,6 +107,11 @@ class TestRds:
             verbose=False,
         )
         assert new_db_inst.is_stopped() is True
+        with pytest.raises(StatusError):
+            db_inst.wait_for_available(
+                rds_client=self.bsm.rds_client,
+                verbose=False,
+            )
 
     def test(self):
         self._test()
