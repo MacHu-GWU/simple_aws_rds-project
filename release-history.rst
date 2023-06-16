@@ -17,6 +17,15 @@ Backlog (TODO)
 **Miscellaneous**
 
 
+0.3.1 (2023-06-15)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- add ``RDSDBInstanceStatusGroupEnum``
+- add ``RDSDBInstance.wait_for_available``
+- add ``RDSDBInstance.wait_for_stopped``
+
+
 0.2.1 (2023-06-15)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
