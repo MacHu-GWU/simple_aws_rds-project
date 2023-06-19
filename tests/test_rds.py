@@ -113,9 +113,20 @@ class TestRds:
                 verbose=False,
             )
 
+    def _test_delete_db_instance(self):
+        db_inst = RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
+        db_inst.delete_db_instance(self.bsm.rds_client)
+        try:
+            RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
+        except Exception as e:
+            assert "not found" in str(e)
+
     def test(self):
+        # these test has to run in sequence, the next test depends on the state
+        # of previous one
         self._test()
         self._test_wait_for_status()
+        self._test_delete_db_instance()
 
 
 if __name__ == "__main__":

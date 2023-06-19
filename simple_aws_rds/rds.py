@@ -470,12 +470,35 @@ class RDSDBInstance:
         }
 
     def start_db_instance(self, rds_client) -> dict:
-        """ """
+        """
+        Start the RDS DB instance
+        """
         return rds_client.start_db_instance(DBInstanceIdentifier=self.id)
 
     def stop_db_instance(self, rds_client) -> dict:
-        """ """
+        """
+        Stop the RDS DB instance
+        """
         return rds_client.stop_db_instance(DBInstanceIdentifier=self.id)
+
+    def delete_db_instance(
+        self,
+        rds_client,
+        skip_final_snapshot: bool = NOTHING,
+        final_db_snapshot_identifier: str = NOTHING,
+        delete_automated_backups: bool = NOTHING,
+    ) -> dict:
+        """
+        Delete the RDS DB instance
+        """
+        return rds_client.delete_db_instance(
+            **resolve_kwargs(
+                DBInstanceIdentifier=self.id,
+                SkipFinalSnapshot=skip_final_snapshot,
+                FinalDBSnapshotIdentifier=final_db_snapshot_identifier,
+                DeleteAutomatedBackups=delete_automated_backups,
+            )
+        )
 
     def wait_for_status(
         self,
