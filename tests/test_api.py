@@ -50,6 +50,7 @@ def test():
     _ = api.RDSDBInstance.is_in_transition
     _ = api.RDSDBInstance.start_db_instance
     _ = api.RDSDBInstance.stop_db_instance
+    _ = api.RDSDBInstance.delete_db_instance
     _ = api.RDSDBInstance.wait_for_status
     _ = api.RDSDBInstance.wait_for_available
     _ = api.RDSDBInstance.wait_for_stopped
