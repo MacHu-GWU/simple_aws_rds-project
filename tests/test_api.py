@@ -9,6 +9,9 @@ def test():
     _ = api.RDSDBInstanceStatusGroupEnum
     _ = api.RDSDBInstance
     _ = api.RDSDBInstanceIterProxy
+    _ = api.RDSDBSnapshotStatusEnum
+    _ = api.RDSDBSnapshot
+    _ = api.RDSDBSnapshotIterProxy
 
     # attribute and method
     _ = api.RDSDBInstance.from_dict
@@ -55,6 +58,15 @@ def test():
     _ = api.RDSDBInstance.query
     _ = api.RDSDBInstance.from_id
     _ = api.RDSDBInstance.from_tag_key_value
+
+    _ = api.RDSDBSnapshot.from_dict
+    _ = api.RDSDBSnapshot.is_creating
+    _ = api.RDSDBSnapshot.is_available
+    _ = api.RDSDBSnapshot.wait_for_status
+    _ = api.RDSDBSnapshot.wait_for_available
+    _ = api.RDSDBSnapshot.query
+    _ = api.RDSDBSnapshot.from_id
+    _ = api.RDSDBSnapshot.from_tag_key_value
 
 
 if __name__ == "__main__":

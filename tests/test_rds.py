@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import pytest
 import moto
 from boto_session_manager import BotoSesManager
@@ -9,6 +8,8 @@ from simple_aws_rds.rds import (
     RDSDBInstanceStatusEnum,
     RDSDBInstanceStatusGroupEnum,
     RDSDBInstance,
+    RDSDBSnapshotStatusEnum,
+    RDSDBSnapshot,
     StatusError,
 )
 
@@ -40,6 +41,16 @@ class TestRds:
             ],
         )["DBInstance"]["DBInstanceIdentifier"]
 
+        cls.snap_id_1 = cls.bsm.rds_client.create_db_snapshot(
+            DBInstanceIdentifier=cls.inst_id_1,
+            DBSnapshotIdentifier="db-snap-1-1",
+        )["DBSnapshot"]["DBSnapshotIdentifier"]
+
+        cls.snap_id_2 = cls.bsm.rds_client.create_db_snapshot(
+            DBInstanceIdentifier=cls.inst_id_2,
+            DBSnapshotIdentifier="db-snap-2-1",
+        )["DBSnapshot"]["DBSnapshotIdentifier"]
+
     @classmethod
     def setup_class(cls):
         cls.mock_rds = moto.mock_rds()
@@ -51,7 +62,7 @@ class TestRds:
     def teardown_class(cls):
         cls.mock_rds.stop()
 
-    def _test(self):
+    def _test_db_instance(self):
         inst_id_list = [
             self.inst_id_1,
             self.inst_id_2,
@@ -62,6 +73,8 @@ class TestRds:
             assert db_inst.is_stopped() is False
             assert db_inst.is_ready_to_start() is False
             assert db_inst.is_ready_to_stop() is True
+            assert db_inst.is_end() is True
+            assert db_inst.is_in_transition() is False
             assert db_inst.id == inst_id
 
         db_inst_list = RDSDBInstance.query(self.bsm.rds_client).all()
@@ -113,6 +126,20 @@ class TestRds:
                 verbose=False,
             )
 
+    def _test_db_snapshot(self):
+        snap = RDSDBSnapshot.from_id(self.bsm.rds_client, self.snap_id_1)
+        assert snap.is_available() is True
+
+        snap = RDSDBSnapshot(db_snapshot_identifier=self.snap_id_1).wait_for_available(
+            rds_client=self.bsm.rds_client, verbose=False
+        )
+        assert snap.is_available() is True
+
+        snap_list = RDSDBSnapshot.from_tag_key_value(
+            self.bsm.rds_client, key="Env", value="sandbox"
+        ).all()
+        assert len(snap_list) == 0
+
     def _test_delete_db_instance(self):
         db_inst = RDSDBInstance.from_id(self.bsm.rds_client, self.inst_id_1)
         db_inst.delete_db_instance(self.bsm.rds_client)
@@ -124,11 +151,13 @@ class TestRds:
     def test(self):
         # these test has to run in sequence, the next test depends on the state
         # of previous one
-        self._test()
+        self._test_db_instance()
         self._test_wait_for_status()
+        self._test_db_snapshot()
         self._test_delete_db_instance()
 
 
 if __name__ == "__main__":
-    basename = os.path.basename(__file__)
-    pytest.main([basename, "-s", "--tb=native"])
+    from simple_aws_rds.tests import run_cov_test
+
+    run_cov_test(__file__, "simple_aws_rds.rds", preview=False)

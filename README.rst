@@ -54,12 +54,11 @@
 
 Welcome to ``simple_aws_rds`` Documentation
 ==============================================================================
-
 Usage:
 
 .. code-block:: python
 
-    from simple_aws_rds import RDSDBInstance
+    from simple_aws_rds.api import RDSDBInstance, RDSDBSnapshot
     from boto_session_manager import BotoSesManager
 
     bsm = BotoSesManager()

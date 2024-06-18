@@ -6,6 +6,7 @@ omit =
     simple_aws_rds/tests/*
     simple_aws_rds/vendor/*
     simple_aws_rds/_version.py
+    simple_aws_rds/paths.py
 
 [report]
 # Regexes for lines to exclude from consideration
