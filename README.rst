@@ -1,6 +1,6 @@
 
-.. .. image:: https://readthedocs.org/projects/simple_aws_rds/badge/?version=latest
-    :target: https://simple_aws_rds.readthedocs.io/index.html
+.. image:: https://readthedocs.org/projects/simple-aws-rds/badge/?version=latest
+    :target: https://simple-aws-rds.readthedocs.io/index.html
     :alt: Documentation Status
 
 .. image:: https://github.com/MacHu-GWU/simple_aws_rds-project/workflows/CI/badge.svg
@@ -26,15 +26,14 @@
 
 ------
 
+.. image:: https://img.shields.io/badge/Link-Document-blue.svg
+    :target: https://simple-aws-rds.readthedocs.io/en/latest/
 
-.. .. image:: https://img.shields.io/badge/Link-Document-blue.svg
-    :target: https://simple_aws_rds.readthedocs.io/index.html
+.. image:: https://img.shields.io/badge/Link-API-blue.svg
+    :target: https://simple-aws-rds.readthedocs.io/en/latest/py-modindex.html
 
-.. .. image:: https://img.shields.io/badge/Link-API-blue.svg
-    :target: https://simple_aws_rds.readthedocs.io/py-modindex.html
-
-.. .. image:: https://img.shields.io/badge/Link-Source_Code-blue.svg
-    :target: https://simple_aws_rds.readthedocs.io/py-modindex.html
+.. image:: https://img.shields.io/badge/Link-Source_Code-blue.svg
+    :target: https://simple-aws-rds.readthedocs.io/en/latest/py-modindex.html
 
 .. image:: https://img.shields.io/badge/Link-Install-blue.svg
     :target: `install`_
@@ -54,6 +53,11 @@
 
 Welcome to ``simple_aws_rds`` Documentation
 ==============================================================================
+.. image:: https://simple-aws-rds.readthedocs.io/en/latest/_static/simple_aws_rds-logo.png
+    :target: https://simple-aws-rds.readthedocs.io/en/latest/
+
+Pythonic AWS RDS boto3 API, for human.
+
 Usage:
 
 .. code-block:: python

@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 
+"""
+Pythonic AWS RDS boto3 API, for human.
+"""
+
 from ._version import __version__
 
-__short_description__ = "Simple AWS RDS dev tools."
+__short_description__ = "Pythonic AWS RDS boto3 API, for human."
 __license__ = "MIT"
 __author__ = "Sanhe Hu"
 __author_email__ = "husanhe@gmail.com"
 __github_username__ = "MacHu-GWU"
-
-try:
-    from .api import (
-        RDSDBInstanceStatusEnum,
-        RDSDBInstance,
-        RDSDBInstanceIterProxy,
-    )
-except ImportError as e:  # pragma: no cover
-    pass

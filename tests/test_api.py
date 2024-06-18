@@ -5,6 +5,8 @@ def test():
     from simple_aws_rds import api
 
     # top level API
+    _ = api.exc
+    _ = api.StatusError
     _ = api.RDSDBInstanceStatusEnum
     _ = api.RDSDBInstanceStatusGroupEnum
     _ = api.RDSDBInstance
