@@ -17,6 +17,13 @@ Backlog (TODO)
 **Miscellaneous**
 
 
+0.5.2 (2024-06-18)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Bugfixes**
+
+- Fix a bug that waiter method does not respect ``gap`` and ``instant`` parameter.
+
+
 0.5.1 (2024-06-18)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**

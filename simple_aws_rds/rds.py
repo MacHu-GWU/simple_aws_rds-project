@@ -527,6 +527,9 @@ class RDSDBInstance:
         else:
             error_status_set = {status.value for status in RDSDBInstanceStatusEnum}
 
+        if gap:
+            time.sleep(gap)
+
         for attempt, elapse in Waiter(
             delays=delays,
             timeout=timeout,
@@ -546,8 +549,10 @@ class RDSDBInstance:
     def wait_for_available(
         self,
         rds_client: "RDSClient",
+        gap: T.Union[int, float] = 1,
         delays: T.Union[int, float] = 10,
         timeout: T.Union[int, float] = 300,
+        instant: bool = True,
         indent: int = 0,
         verbose: bool = True,
     ) -> "RDSDBInstance":  # pragma: no cover
@@ -558,8 +563,10 @@ class RDSDBInstance:
         return self.wait_for_status(
             rds_client=rds_client,
             stop_status=RDSDBInstanceStatusEnum.available,
+            gap=gap,
             delays=delays,
             timeout=timeout,
+            instant=instant,
             error_status=list(
                 RDSDBInstanceStatusGroupEnum.impossible_to_become_available
             ),
@@ -570,8 +577,10 @@ class RDSDBInstance:
     def wait_for_stopped(
         self,
         rds_client: "RDSClient",
+        gap: T.Union[int, float] = 1,
         delays: T.Union[int, float] = 10,
         timeout: T.Union[int, float] = 300,
+        instant: bool = True,
         indent: int = 0,
         verbose: bool = True,
     ) -> "RDSDBInstance":  # pragma: no cover
@@ -582,8 +591,10 @@ class RDSDBInstance:
         return self.wait_for_status(
             rds_client=rds_client,
             stop_status=RDSDBInstanceStatusEnum.stopped,
+            gap=gap,
             delays=delays,
             timeout=timeout,
+            instant=instant,
             error_status=list(
                 RDSDBInstanceStatusGroupEnum.impossible_to_become_stopped
             ),
@@ -885,6 +896,7 @@ class RDSDBSnapshot:
         gap: T.Union[int, float] = 1,
         delays: T.Union[int, float] = 10,
         timeout: T.Union[int, float] = 300,
+        instant: bool = True,
         indent: int = 0,
         verbose: bool = True,
     ) -> "RDSDBSnapshot":  # pragma: no cover
@@ -898,6 +910,7 @@ class RDSDBSnapshot:
             gap=gap,
             delays=delays,
             timeout=timeout,
+            instant=instant,
             indent=indent,
             verbose=verbose,
         )
