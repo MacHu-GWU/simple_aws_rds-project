@@ -489,8 +489,10 @@ class RDSDBInstance:
         self,
         rds_client: "RDSClient",
         stop_status: T.Union[RDSDBInstanceStatusEnum, T.List[RDSDBInstanceStatusEnum]],
+        gap: T.Union[int, float] = 1,
         delays: T.Union[int, float] = 10,
         timeout: T.Union[int, float] = 300,
+        instant: bool = True,
         error_status: T.Optional[
             T.Union[RDSDBInstanceStatusEnum, T.List[RDSDBInstanceStatusEnum]]
         ] = None,
@@ -503,8 +505,10 @@ class RDSDBInstance:
 
         :param rds_client:
         :param stop_status: status to stop waiting
+        :param gap: the time to wait before making first status check
         :param delays: delay between each check
         :param timeout: timeout in seconds
+        :param instant: if True, then the first check is instant
         :param error_status: status to raise error
         :param indent: indent level for logging
         :param verbose: whether to print log
@@ -526,7 +530,7 @@ class RDSDBInstance:
         for attempt, elapse in Waiter(
             delays=delays,
             timeout=timeout,
-            instant=True,
+            instant=instant,
             indent=indent,
             verbose=verbose,
         ):
@@ -821,6 +825,7 @@ class RDSDBSnapshot:
         gap: T.Union[int, float] = 1,
         delays: T.Union[int, float] = 10,
         timeout: T.Union[int, float] = 300,
+        instant: bool = True,
         error_status: T.Optional[
             T.Union[RDSDBSnapshotStatusEnum, T.List[RDSDBSnapshotStatusEnum]]
         ] = None,
@@ -836,6 +841,7 @@ class RDSDBSnapshot:
         :param gap: the time to wait before making first status check
         :param delays: delay between each check
         :param timeout: timeout in seconds
+        :param instant: if True, then the first check is instant
         :param error_status: status to raise error
         :param indent: indent level for logging
         :param verbose: whether to print log
@@ -860,7 +866,7 @@ class RDSDBSnapshot:
         for attempt, elapse in Waiter(
             delays=delays,
             timeout=timeout,
-            instant=True,
+            instant=instant,
             indent=indent,
             verbose=verbose,
         ):
@@ -983,7 +989,9 @@ class RDSDBSnapshot:
 
         def run():
             for db_snap in cls.query(rds_client):
-                if db_snap.tags.get(key, "THIS_IS_IMPOSSIBLE_TO_MATCH") == value: # pragma: no cover
+                if (
+                    db_snap.tags.get(key, "THIS_IS_IMPOSSIBLE_TO_MATCH") == value
+                ):  # pragma: no cover
                     yield db_snap
 
         return RDSDBSnapshotIterProxy(run())

@@ -17,6 +17,18 @@ Backlog (TODO)
 **Miscellaneous**
 
 
+0.5.1 (2024-06-18)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- add ``RDSDBSnapshot``
+
+**Minor Improvements**
+
+- the waiter method now can do the check instantly.
+- add document website.
+
+
 0.4.1 (2023-06-19)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
