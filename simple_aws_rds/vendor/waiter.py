@@ -5,6 +5,7 @@ import sys
 import time
 import itertools
 
+__version__ = "0.1.1"
 
 class Waiter:
     """
@@ -58,7 +59,6 @@ class Waiter:
             sys.stdout.flush()
         start = time.time()
         end = start + self.timeout
-        yield 0, 0
         for attempt, delay in enumerate(self.delays, 1):
             now = time.time()
             remaining = end - now

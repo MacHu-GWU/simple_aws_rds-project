@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import pytest
-
 
 def test():
     from simple_aws_rds import api
@@ -60,7 +58,6 @@ def test():
 
 
 if __name__ == "__main__":
-    import os
+    from simple_aws_rds.tests import run_cov_test
 
-    basename = os.path.basename(__file__)
-    pytest.main([basename, "-s", "--tb=native"])
+    run_cov_test(__file__, "simple_aws_rds.api", preview=False)
