@@ -17,6 +17,17 @@ Backlog (TODO)
 **Miscellaneous**
 
 
+0.5.3 (2024-06-19)
+------------------------------------------------------------------------------
+**Minor Improvements**
+
+- Now ``RDSDBInstance.status`` attribute is optional.
+
+**Bugfixes**
+
+- fix a bug that ``RDSDBSnapshot.wait_for_status`` uses the wrong status enum class.
+
+
 0.5.2 (2024-06-18)
 ------------------------------------------------------------------------------
 **Bugfixes**

@@ -19,6 +19,12 @@ from .exc import StatusError
 
 if T.TYPE_CHECKING:  # pragma: no cover
     from mypy_boto3_rds.client import RDSClient
+    from mypy_boto3_rds.type_defs import (
+        StartDBInstanceResultTypeDef,
+        StopDBInstanceResultTypeDef,
+        DeleteDBInstanceResultTypeDef,
+        DeleteDBSnapshotResultTypeDef,
+    )
 
 
 class RDSDBInstanceStatusEnum(str, enum.Enum):
@@ -146,7 +152,7 @@ class RDSDBInstance:
 
     # fmt: off
     id: str = dataclasses.field()
-    status: str = dataclasses.field()
+    status: T.Optional[str] = dataclasses.field(default=None)
     instance_class: T.Optional[str] = dataclasses.field(default=None)
     instance_create_time: T.Optional[datetime] = dataclasses.field(default=None)
     engine: T.Optional[str] = dataclasses.field(default=None)
@@ -225,7 +231,7 @@ class RDSDBInstance:
         # fmt: off
         return cls(
             id=dct["DBInstanceIdentifier"],
-            status=dct["DBInstanceStatus"],
+            status=dct.get("DBInstanceStatus"),
             instance_class=dct.get("DBInstanceClass"),
             instance_create_time=dct.get("InstanceCreateTime"),
             engine=dct.get("Engine"),
@@ -454,13 +460,17 @@ class RDSDBInstance:
             status.value for status in RDSDBInstanceStatusGroupEnum.in_transition
         }
 
-    def start_db_instance(self, rds_client: "RDSClient") -> dict:
+    def start_db_instance(
+        self, rds_client: "RDSClient"
+    ) -> "StartDBInstanceResultTypeDef":
         """
         Start the RDS DB instance
         """
         return rds_client.start_db_instance(DBInstanceIdentifier=self.id)
 
-    def stop_db_instance(self, rds_client: "RDSClient") -> dict:
+    def stop_db_instance(
+        self, rds_client: "RDSClient"
+    ) -> "StopDBInstanceResultTypeDef":
         """
         Stop the RDS DB instance
         """
@@ -472,7 +482,7 @@ class RDSDBInstance:
         skip_final_snapshot: bool = NOTHING,
         final_db_snapshot_identifier: str = NOTHING,
         delete_automated_backups: bool = NOTHING,
-    ) -> dict:
+    ) -> "DeleteDBInstanceResultTypeDef":
         """
         Delete the RDS DB instance
         """
@@ -519,13 +529,13 @@ class RDSDBInstance:
         if isinstance(stop_status, RDSDBInstanceStatusEnum):
             stop_status_set = {stop_status.value}
         else:
-            stop_status_set = {status.value for status in RDSDBInstanceStatusEnum}
+            stop_status_set = {status.value for status in stop_status}
         if error_status is None:
             error_status_set = set()
         elif isinstance(error_status, RDSDBInstanceStatusEnum):
             error_status_set = {error_status.value}
         else:
-            error_status_set = {status.value for status in RDSDBInstanceStatusEnum}
+            error_status_set = {status.value for status in error_status}
 
         if gap:
             time.sleep(gap)
@@ -539,7 +549,8 @@ class RDSDBInstance:
         ):
             db_inst = self.from_id(rds_client, self.id)
             if db_inst.status in stop_status_set:
-                sys.stdout.write("\n")
+                if verbose:
+                    sys.stdout.write("\n")
                 return db_inst
             elif db_inst.status in error_status_set:
                 raise StatusError(f"stop because status reaches {db_inst.status!r}")
@@ -734,7 +745,7 @@ class RDSDBSnapshot:
     """
 
     # fmt: off
-    db_snapshot_identifier: str = dataclasses.field(default=None)
+    db_snapshot_identifier: str = dataclasses.field()
     db_instance_identifier: T.Optional[str] = dataclasses.field(default=None)
     snapshot_create_time: T.Optional[datetime] = dataclasses.field(default=None)
     engine: T.Optional[str] = dataclasses.field(default=None)
@@ -860,16 +871,16 @@ class RDSDBSnapshot:
         :return: the :class:`RDSDBInstance` representing the latest status
             of DB instance.
         """
-        if isinstance(stop_status, RDSDBInstanceStatusEnum):
+        if isinstance(stop_status, RDSDBSnapshotStatusEnum):
             stop_status_set = {stop_status.value}
         else:
-            stop_status_set = {status.value for status in RDSDBInstanceStatusEnum}
+            stop_status_set = {status.value for status in stop_status}
         if error_status is None:
             error_status_set = set()
-        elif isinstance(error_status, RDSDBInstanceStatusEnum):
+        elif isinstance(error_status, RDSDBSnapshotStatusEnum):
             error_status_set = {error_status.value}
         else:
-            error_status_set = {status.value for status in RDSDBInstanceStatusEnum}
+            error_status_set = {status.value for status in error_status}
 
         if gap:
             time.sleep(gap)
@@ -883,7 +894,8 @@ class RDSDBSnapshot:
         ):
             db_snapshot = self.from_id(rds_client, self.db_snapshot_identifier)
             if db_snapshot.status in stop_status_set:
-                sys.stdout.write("\n")
+                if verbose:
+                    sys.stdout.write("\n")
                 return db_snapshot
             elif db_snapshot.status in error_status_set:
                 raise StatusError(f"stop because status reaches {db_snapshot.status!r}")
@@ -913,6 +925,17 @@ class RDSDBSnapshot:
             instant=instant,
             indent=indent,
             verbose=verbose,
+        )
+
+    def delete_db_snapshot(
+        self,
+        rds_client: "RDSClient",
+    ) -> "DeleteDBSnapshotResultTypeDef":
+        """
+        Delete the RDS DB instance
+        """
+        return rds_client.delete_db_snapshot(
+            DBSnapshotIdentifier=self.db_snapshot_identifier,
         )
 
     # --------------------------------------------------------------------------
